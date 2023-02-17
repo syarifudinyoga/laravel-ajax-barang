@@ -107,7 +107,21 @@ class BarangController extends Controller
      */
     public function show($id)
     {
-        //
+        $barang = Barang::find($id);
+        
+        if (!$barang) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Data Not Found',
+                'data' => null
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Data Found',
+                'data' => $barang
+            ], 200);
+        }
     }
 
     /**
@@ -130,7 +144,53 @@ class BarangController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        //validation
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:jpg,png|max:100',
+            'file_nama' => 'required|string|unique:barang',
+            'harga_beli' => 'Integer|min:0',
+            'harga_jual' => 'Integer|min:0',
+            'stok' => 'Integer|min:0|max:40000'
+        ],[
+            'file.required' => 'Foto Produk is Required',
+            'file.mimes' => 'Foto Produk Must be JPG or PNG format',
+            'file.max' => 'Foto Produk Max 100kb',
+            'file_nama.required' => 'Nama Produk is Required',
+            'file_nama.string' => 'Nama Produk Must be String',
+            'file_nama.unique' => 'Nama Produk has been taken', 
+            'harga_beli.Integer' => 'Harga Beli must be Integer',
+            'harga_beli.min' => 'Harga Beli minLength 0',
+            'harga_jual.Integer' => 'Harga Jual Must be Integer',
+            'harga_jual.min' => 'Harga Jual minLength 0',
+            'stok.Integer' => 'Stok must be Integer',
+            'stok.min' => 'Stok minLength 0'
+        ]);
+
+        //Send failed response if request is not valid
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->messages()], 200);
+        }
+             
+        if ($file = $request->file('file')) {
+            //store file into image folder
+            $file->storeAs('public/image',strtotime("now").".".$request->file->extension());
+            $file = strtotime("now").".".$request->file->extension(); 
+
+            $barang = Barang::find($id);
+            $barang->update([
+                'file_gambar' => $file,
+                'file_nama' => $request->file_nama,
+                'harga_beli' => $request->harga_beli,
+                'harga_jual' => $request->harga_jual,
+                'stok' => $request->stok
+            ]);
+              
+            return response()->json([
+                'status' => 200,
+                'message' => 'Data Barang updated successfully',
+                'data' => $barang
+            ], 200);
+        }
     }
 
     /**
@@ -141,6 +201,24 @@ class BarangController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $get_id = Barang::where('uuid', '=', $id)->get();
+        $count = count($get_id);
+
+        if($count>0){
+            //retrieve data by id and delete
+            $barang = Barang::destroy($id);
+        
+            //data deleted, return success response
+            return response()->json([
+                'status' => 200,
+                'message' => 'Data deleted successfully'
+            ], 200);
+        } else {
+            //data deleted, return success response
+            return response()->json([
+                'status' => 200,
+                'message' => 'Data has been deleted before or nothing data can deleted'
+            ], 200);
+        }
     }
 }
