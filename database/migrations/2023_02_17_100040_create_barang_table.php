@@ -14,7 +14,12 @@ class CreateBarangTable extends Migration
     public function up()
     {
         Schema::create('barang', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('uuid')->primary();
+            $table->string('file_gambar');
+            $table->string('file_nama')->unique();
+            $table->integer('harga_beli');
+            $table->integer('harga_jual');
+            $table->integer('stok');
             $table->timestamps();
         });
     }
