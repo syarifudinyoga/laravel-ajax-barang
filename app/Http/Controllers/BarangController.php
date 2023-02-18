@@ -20,14 +20,26 @@ class BarangController extends Controller
         if ($data->isEmpty()){
             return response()->json([
                 'status' => 200,
-                'message' => 'Data Not Found',
+                'message' => 'Data Tidak Ditemukan',
                 'data' => $data
             ], 200);
         } else {
+            $newData = array();
+            foreach($data as $d){
+                $rows['uuid'] = $d->uuid;
+                $rows['file_nama'] = $d->file_nama;
+                $rows['harga_beli'] = $d->harga_beli;
+                $rows['harga_jual'] = $d->harga_jual;
+                $rows['stok'] = $d->stok;
+                $rows['action'] = '<button class="btn btn-outline-info" onclick="showProject('.$d->uuid.'><i class="fa fa-eye" aria-hidden="true"></i></button><button class="btn btn-outline-success" onclick="editProject('.$d->uuid.'><i class="fa fa-pencil" aria-hidden="true"></i></button><button class="btn btn-outline-danger" onclick="destroyProject('.$d->uuid.'><i class="fa fa-trash" aria-hidden="true"></i></button>';
+
+                $newData[] = $rows;
+            }
+
             return response()->json([
                 'status' => 200,
-                'message' => 'Data Found',
-                'data' => $data
+                'message' => 'Data Tersedia',
+                'data' => $newData
             ], 200);
         }
     }
@@ -56,25 +68,28 @@ class BarangController extends Controller
             'file_nama' => 'required|string|unique:barang',
             'harga_beli' => 'Integer|min:0',
             'harga_jual' => 'Integer|min:0',
-            'stok' => 'Integer|min:0|max:40000'
+            'stok' => 'Integer|min:0'
         ],[
-            'file.required' => 'Foto Produk is Required',
-            'file.mimes' => 'Foto Produk Must be JPG or PNG format',
-            'file.max' => 'Foto Produk Max 100kb',
-            'file_nama.required' => 'Nama Produk is Required',
-            'file_nama.string' => 'Nama Produk Must be String',
-            'file_nama.unique' => 'Nama Produk has been taken', 
-            'harga_beli.Integer' => 'Harga Beli must be Integer',
-            'harga_beli.min' => 'Harga Beli minLength 0',
-            'harga_jual.Integer' => 'Harga Jual Must be Integer',
-            'harga_jual.min' => 'Harga Jual minLength 0',
-            'stok.Integer' => 'Stok must be Integer',
-            'stok.min' => 'Stok minLength 0'
+            'file.required' => 'Foto Produk Harus Diisi',
+            'file.mimes' => 'Format Foto Produk Bukan JPG/PNG',
+            'file.max' => 'Foto Produk Maksimal 100kb',
+            'file_nama.required' => 'Nama Produk Harus Diisi',
+            'file_nama.string' => 'Nama Produk Harus Kalimat',
+            'file_nama.unique' => 'Nama Produk Sudah Digunakan', 
+            'harga_beli.Integer' => 'Harga Beli Harus Format Angka',
+            'harga_beli.min' => 'Harga Beli Minimal 0',
+            'harga_jual.Integer' => 'Harga Jual Harus Format Angka',
+            'harga_jual.min' => 'Harga Jual Minimal 0',
+            'stok.Integer' => 'Stok Harus Format Angka',
+            'stok.min' => 'Stok Minimal 0'
         ]);
 
         //Send failed response if request is not valid
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->messages()], 200);
+            return response()->json([
+                'status' => 'error',
+                'error' => $validator->errors()
+            ], 200);
         }
              
         if ($file = $request->file('file')) {
@@ -92,8 +107,8 @@ class BarangController extends Controller
             $barang->save();
               
             return response()->json([
-                'status' => 200,
-                'message' => 'Data Barang created successfully',
+                'status' => 'sukses',
+                'message' => 'Sukses Tambah Data Barang',
                 'data' => $barang
             ], 200);
         }
@@ -112,13 +127,13 @@ class BarangController extends Controller
         if (!$barang) {
             return response()->json([
                 'status' => 200,
-                'message' => 'Data Not Found',
+                'message' => 'Data Tidak Ditemukan',
                 'data' => null
             ], 200);
         } else {
             return response()->json([
                 'status' => 200,
-                'message' => 'Data Found',
+                'message' => 'Data Tersedia',
                 'data' => $barang
             ], 200);
         }
@@ -150,25 +165,28 @@ class BarangController extends Controller
             'file_nama' => 'required|string|unique:barang',
             'harga_beli' => 'Integer|min:0',
             'harga_jual' => 'Integer|min:0',
-            'stok' => 'Integer|min:0|max:40000'
+            'stok' => 'Integer|min:0'
         ],[
-            'file.required' => 'Foto Produk is Required',
-            'file.mimes' => 'Foto Produk Must be JPG or PNG format',
-            'file.max' => 'Foto Produk Max 100kb',
-            'file_nama.required' => 'Nama Produk is Required',
-            'file_nama.string' => 'Nama Produk Must be String',
-            'file_nama.unique' => 'Nama Produk has been taken', 
-            'harga_beli.Integer' => 'Harga Beli must be Integer',
-            'harga_beli.min' => 'Harga Beli minLength 0',
-            'harga_jual.Integer' => 'Harga Jual Must be Integer',
-            'harga_jual.min' => 'Harga Jual minLength 0',
-            'stok.Integer' => 'Stok must be Integer',
-            'stok.min' => 'Stok minLength 0'
+            'file.required' => 'Foto Produk Harus Diisi',
+            'file.mimes' => 'Format Foto Produk Bukan JPG/PNG',
+            'file.max' => 'Foto Produk Maksimal 100kb',
+            'file_nama.required' => 'Nama Produk Harus Diisi',
+            'file_nama.string' => 'Nama Produk Harus Kalimat',
+            'file_nama.unique' => 'Nama Produk Sudah Digunakan', 
+            'harga_beli.Integer' => 'Harga Beli Harus Format Angka',
+            'harga_beli.min' => 'Harga Beli Minimal 0',
+            'harga_jual.Integer' => 'Harga Jual Harus Format Angka',
+            'harga_jual.min' => 'Harga Jual Minimal 0',
+            'stok.Integer' => 'Stok Harus Format Angka',
+            'stok.min' => 'Stok Minimal 0'
         ]);
 
         //Send failed response if request is not valid
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->messages()], 200);
+            return response()->json([
+                'status' => 'error',
+                'error' => $validator->errors()
+            ], 200);
         }
              
         if ($file = $request->file('file')) {
@@ -186,8 +204,8 @@ class BarangController extends Controller
             ]);
               
             return response()->json([
-                'status' => 200,
-                'message' => 'Data Barang updated successfully',
+                'status' => 'sukses',
+                'message' => 'Sukses Edit Data Barang',
                 'data' => $barang
             ], 200);
         }
@@ -211,13 +229,13 @@ class BarangController extends Controller
             //data deleted, return success response
             return response()->json([
                 'status' => 200,
-                'message' => 'Data deleted successfully'
+                'message' => 'Sukses Hapus Data Barang'
             ], 200);
         } else {
             //data deleted, return success response
             return response()->json([
                 'status' => 200,
-                'message' => 'Data has been deleted before or nothing data can deleted'
+                'message' => 'Data Barang Tidak Tersedia Atau Sudah Dihapus Sebelumnya'
             ], 200);
         }
     }
