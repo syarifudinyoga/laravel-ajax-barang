@@ -27,6 +27,7 @@ class BarangController extends Controller
             $newData = array();
             foreach($data as $d){
                 $rows['uuid'] = $d->uuid;
+                $rows['file'] = 'storage/image/'.$d->file_gambar;
                 $rows['file_nama'] = $d->file_nama;
                 $rows['harga_beli'] = $d->harga_beli;
                 $rows['harga_jual'] = $d->harga_jual;
@@ -122,8 +123,9 @@ class BarangController extends Controller
      */
     public function show($id)
     {
-        $barang = Barang::find($id);
-        
+        //$barang = Barang::find($id);
+        $barang = Barang::where('uuid', '=', $id)->get();
+
         if (!$barang) {
             return response()->json([
                 'status' => 200,
@@ -131,10 +133,22 @@ class BarangController extends Controller
                 'data' => null
             ], 200);
         } else {
+            $newData = array();
+            foreach($barang as $d){
+                $rows['uuid'] = $d->uuid;
+                $rows['file'] = 'storage/image/'.$d->file_gambar;
+                $rows['file_nama'] = $d->file_nama;
+                $rows['harga_beli'] = $d->harga_beli;
+                $rows['harga_jual'] = $d->harga_jual;
+                $rows['stok'] = $d->stok;
+            
+                $newData[] = $rows;
+            }
+
             return response()->json([
                 'status' => 200,
                 'message' => 'Data Tersedia',
-                'data' => $barang
+                'data' => $newData
             ], 200);
         }
     }

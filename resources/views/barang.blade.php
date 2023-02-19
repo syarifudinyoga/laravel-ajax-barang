@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Test Nutech Yoga</title>
+    <title>Barang</title>
     <meta charset="utf-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-url" content="{{ url('/') }}">
@@ -24,9 +24,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/10.5.1/sweetalert2.all.min.js"></script>
 </head>
 <body>
-  
-    <div class="container-fluid">
-        <h2 class="text-center mt-5 mb-3">List Barang</h2>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">Nutech Integrasi</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="{{ route ('barang')}}">Barang</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+    <div class="container"><br>
         <div class="card">
             <div class="card-header">
                 <button class="btn btn-outline-primary" onclick="createBarang()">Tambah Data</button>
@@ -40,17 +54,21 @@
                     <thead>
                         <tr>
                             <th style="width:3%">No</th>
-                            <th style="width:23%">Nama</th>
-                            <th style="width:16%">Harga Beli</th>
-                            <th style="width:16%">Harga Jual</th>
-                            <th style="width:16%">Stok</th>
-                            <th style="width:16%">Aksi</th>
+                            <th style="width:22%">Nama</th>
+                            <th style="width:15%">Harga Beli</th>
+                            <th style="width:15%">Harga Jual</th>
+                            <th style="width:15%">Stok</th>
+                            <th style="width:15%">Image</th>
+                            <th style="width:15%">Aksi</th>
                         </tr>
                     </thead>
                     
                 </table>
             </div>
-        </div>
+            <div class="card-footer text-center">
+                Made With ♥ By Syarifudin Yoga Pinasty 2023
+            </div>
+        </div>&nbsp;&nbsp;&nbsp;
     </div>
   
     <!-- modal for creating function -->
@@ -93,7 +111,7 @@
         </div>
     </div>
 
-    <!-- modal for creating function -->
+    <!-- modal for edit function -->
     <div class="modal" tabindex="-1"  id="form-modal-edit">
         <div class="modal-dialog" >
             <div class="modal-content">
@@ -125,6 +143,10 @@
                         <label for="name"><b>Stok</b></label>
                         <input type="number" class="form-control" id="stok_edit" name="stok" required>
                     </div>&nbsp;
+                    <div class="form-group">
+                        <label for="name"><b>Foto lama Barang</b></label>
+                        <p id="file_edit"></p>
+                    </div>
                     
                     <button type="submit" class="btn btn-outline-primary mt-3" id="save-project-btn">Edit</button>
                 </form>
@@ -143,6 +165,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <b>Foto barang:</b>
+                <p id="file_show"></p>
                 <b>Nama:</b>
                 <p id="file_nama_show"></p>
                 <b>Harga Beli:</b>
@@ -177,7 +201,8 @@
                         let showBtn =  '<button class="btn btn-outline-info" onclick="showBarang(' +"'"+ response.data[i].uuid + "'"+')"><i class="fa fa-eye" aria-hidden="true"></i></button> ';
                         let editBtn =  '<button class="btn btn-outline-success" onclick="editBarang(' +"'"+ response.data[i].uuid + "'"+ ')"><i class="fa fa-pencil" aria-hidden="true"></i></button> ';
                         let deleteBtn =  '<button class="btn btn-outline-danger" onclick="destroyBarang(' +"'"+ response.data[i].uuid + "'"+ ')"><i class="fa fa-trash" aria-hidden="true"></i></button>';
-
+                        
+                        let barangImg = '<img src="'+ response.data[i].file +'" alt="Foto Produk" style="width:100px;height:100px;object-fit:cover;" />';
                         let actionTable = showBtn + editBtn + deleteBtn
 
                         $('#tableID').dataTable().fnAddData( [
@@ -186,6 +211,7 @@
                             response.data[i].harga_beli,
                             response.data[i].harga_jual,
                             response.data[i].stok,
+                            barangImg,
                             actionTable
                         ]);
                     }
@@ -261,12 +287,13 @@
                 type: "GET",
                 success: function(response) {
                     console.log(response)
-                    let barang = response.data
+                    let barang = response.data[0]
                     document.getElementById("uuid").value = barang.uuid;
                     document.getElementById("file_nama_edit").value = barang.file_nama;
                     document.getElementById("harga_beli_edit").value = barang.harga_beli;
                     document.getElementById("harga_jual_edit").value = barang.harga_jual;
                     document.getElementById("stok_edit").value = barang.stok;
+                    $("#file_edit").html('<img src="'+barang.file+'" alt="Foto Produk" style="width:50%;height:50%;">');
                     $("#form-modal-edit").modal('show'); 
                 },
                 error: function(response) {
@@ -323,6 +350,7 @@
         //list barang
         function showBarang(id)
         {
+            $("#file_show").html("");
             $("#file_nama_show").html("");
             $("#harga_beli_show").html("");
             $("#harga_jual_show").html("");
@@ -332,8 +360,9 @@
                 url: url,
                 type: "GET",
                 success: function(response) {
-                    let barang = response.data;
+                    let barang = response.data[0];
                     //console.log(barang)
+                    $("#file_show").html('<img src="'+barang.file+'" alt="Foto Produk" style="width:50%;height:50%;">');
                     $("#file_nama_show").html(barang.file_nama);
                     $("#harga_beli_show").html(barang.harga_beli);
                     $("#harga_jual_show").html(barang.harga_jual);

@@ -18,4 +18,4 @@ use App\Http\Controllers\BarangControllerWeb;
 //    return view('welcome');
 //});
 
-Route::get('/',[BarangControllerWeb::class,'viewData']);
+Route::get('/',[BarangControllerWeb::class,'viewData'])->name('barang');
